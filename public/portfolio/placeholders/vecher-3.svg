@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="1400" viewBox="0 0 900 1400">
+<rect width="900" height="1400" fill="#14110f"/>
+<text x="70" y="140" fill="#e6d7b8" font-family="Georgia, serif" font-size="48">Вечер</text>
+<text x="70" y="200" fill="#e6d7b8" fill-opacity=".6" font-family="sans-serif" font-size="22">Кадр 3 · пример</text>
+<rect x="70" y="260" width="760" height="2" fill="#e6d7b8" fill-opacity=".2"/>
+<text x="70" y="360" fill="#e6d7b8" font-family="Georgia, serif" font-size="32">Тёмный фон</text>
+</svg>

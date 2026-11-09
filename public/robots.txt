@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /answers
+Disallow: /api/
+
+Sitemap: https://aivision.by/sitemap.xml

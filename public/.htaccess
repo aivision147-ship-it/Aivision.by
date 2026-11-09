@@ -1,0 +1,13 @@
+Options -Indexes
+
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteRule ^answers$ answers/index.html [L,QSA]
+</IfModule>
+
+<IfModule mod_headers.c>
+  SetEnvIf Request_URI "^/answers" aiv_private
+  SetEnvIf Request_URI "^/api/" aiv_private
+  Header always set X-Robots-Tag "noindex, nofollow" env=aiv_private
+  Header always set Referrer-Policy "no-referrer" env=aiv_private
+</IfModule>

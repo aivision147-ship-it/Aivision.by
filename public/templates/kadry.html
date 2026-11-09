@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Свадьба</title>
+<meta name="theme-color" content="#e8553d">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@300;500;700;900&family=Onest:wght@400;500;600&display=swap&subset=cyrillic" rel="stylesheet">
+<style>
+:root{--coral:#e8553d;--ink:#17131a;--cream:#f6efe6;--butter:#f2d27a;--blush:#f2c6bb;--olive:#55623a;--plum:#3a1f3d;
+  --disp:'Unbounded',system-ui,sans-serif;--sans:'Onest',system-ui,sans-serif}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden;overscroll-behavior:none}
+body{background:var(--ink);color:var(--ink);font:400 16px/1.5 var(--sans);-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent}
+a{color:inherit}
+.stage{position:fixed;inset:0;display:flex;align-items:center;justify-content:center}
+.bgblur{position:absolute;inset:-10%;background:radial-gradient(40% 50% at 20% 30%,var(--coral),transparent 70%),radial-gradient(40% 50% at 80% 70%,var(--butter),transparent 70%),radial-gradient(50% 50% at 60% 20%,var(--plum),transparent 70%),var(--ink);filter:blur(40px);opacity:.75;transition:background .8s}
+.phone{position:relative;width:100%;height:100%;overflow:hidden;overflow:clip;container-type:inline-size;background:var(--cream);touch-action:pan-y}
+.side-hint{display:none}
+@media (min-width:700px){
+  .phone{width:420px;height:min(880px,calc(100vh - 48px));border-radius:34px;box-shadow:0 40px 100px -30px rgba(0,0,0,.7),0 0 0 10px rgba(255,255,255,.06)}
+  .side-hint{display:block;position:absolute;left:calc(50% + 250px);top:50%;transform:translateY(-50%);color:var(--cream);max-width:240px;font:400 14px/1.5 var(--sans);opacity:.8}
+  .side-hint b{display:block;font:700 22px/1.15 var(--disp);margin-bottom:10px}
+  .side-hint kbd{display:inline-block;border:1px solid rgba(246,239,230,.5);border-radius:6px;padding:1px 7px;margin:0 2px;font:500 12px/1.6 var(--sans)}
+  .side-l{left:auto;right:calc(50% + 250px);text-align:right}
+}
+/* progress + header */
+.top{position:absolute;left:0;right:0;top:0;z-index:20;padding:calc(10px + env(safe-area-inset-top)) 12px 0;pointer-events:none}
+.bars{display:flex;gap:4px}
+.bars i{flex:1;height:3px;border-radius:3px;background:rgba(255,255,255,.35);overflow:hidden;position:relative}
+.bars i::after{content:"";position:absolute;inset:0;background:#fff;transform:scaleX(var(--p,0));transform-origin:left}
+.on-light .bars i{background:rgba(23,19,26,.16)}.on-light .bars i::after{background:var(--ink)}
+.who{display:flex;align-items:center;gap:9px;margin-top:10px;color:#fff;font:600 13px/1 var(--sans)}
+.on-light .who{color:var(--ink)}
+.ava{width:32px;height:32px;border-radius:50%;background:var(--ink);color:var(--butter);display:grid;place-items:center;font:700 11px/1 var(--disp);box-shadow:0 0 0 2px var(--butter)}
+.who small{font-weight:400;opacity:.7}
+.ctrl{margin-left:auto;display:flex;gap:6px;pointer-events:auto}
+.ctrl button{width:34px;height:34px;border:0;border-radius:50%;background:rgba(255,255,255,.18);color:inherit;display:grid;place-items:center;cursor:pointer;backdrop-filter:blur(6px)}
+.on-light .ctrl button{background:rgba(23,19,26,.08)}
+.ctrl svg{width:16px;height:16px}
+
+/* slides */
+.slide{position:absolute;inset:0;overflow-x:clip;padding:calc(84px + env(safe-area-inset-top)) 22px calc(30px + env(safe-area-inset-bottom));display:flex;flex-direction:column;overflow-y:auto;overflow-x:hidden;
+  opacity:0;visibility:hidden;transform:translateX(30px) scale(.98);transition:opacity .45s ease,transform .55s cubic-bezier(.2,.8,.2,1),visibility 0s .55s;scrollbar-width:none}
+.slide::-webkit-scrollbar{display:none}
+.slide.prev{transform:translateX(-30px) scale(.98)}
+.slide.act{opacity:1;visibility:visible;transform:none;transition:opacity .45s ease,transform .55s cubic-bezier(.2,.8,.2,1)}
+.ani{opacity:0;transform:translateY(22px)}
+.act .ani{animation:pop .8s cubic-bezier(.2,.8,.2,1) forwards;animation-delay:calc(var(--i,0) * 90ms + 120ms)}
+@keyframes pop{to{opacity:1;transform:none}}
+.tag{display:inline-block;align-self:flex-start;font:600 11px/1 var(--sans);letter-spacing:.16em;text-transform:uppercase;padding:8px 12px;border-radius:30px;border:1.5px solid currentColor}
+.h{font:900 clamp(34px,11.5cqw,50px)/.95 var(--disp);letter-spacing:-.02em;text-transform:uppercase;margin-top:16px}
+.p{font-size:17px;line-height:1.55;margin-top:14px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:9px;padding:16px 20px;border-radius:16px;border:0;background:var(--ink);color:var(--cream);font:600 15px/1 var(--sans);text-decoration:none;cursor:pointer;transition:transform .2s}
+.btn:active{transform:scale(.97)}
+.btn svg{width:18px;height:18px}
+.btn.light{background:var(--cream);color:var(--ink)}
+.spacer{flex:1;min-height:12px}
+
+/* 0 cover */
+.s-cover{background:var(--coral);color:var(--cream)}
+.cover-photo{position:absolute;right:-30px;top:120px;width:58%;aspect-ratio:3/4;background:var(--blush);border:8px solid var(--cream);border-bottom-width:34px;rotate:7deg;box-shadow:0 20px 40px -18px rgba(0,0,0,.45);overflow:hidden}
+.cover-photo img{width:100%;height:100%;object-fit:cover}
+.cover-photo .ph{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:8px;color:var(--plum);background:repeating-linear-gradient(135deg,#f2c6bb 0 14px,#efbcb0 14px 28px)}
+.cover-photo .ph svg{width:46px;height:46px}
+.cover-photo .ph small{font:600 10px/1.3 var(--sans);letter-spacing:.14em;text-transform:uppercase;text-align:center}
+.cover-photo .cap{position:absolute;bottom:-28px;left:0;right:0;text-align:center;font:500 12px/1 var(--sans);color:var(--ink)}
+.big-names{position:relative;z-index:2;font:900 clamp(46px,16cqw,70px)/.86 var(--disp);text-transform:uppercase;letter-spacing:-.03em;margin-top:auto}
+.big-names .plus{display:block;color:var(--butter);font-weight:300;font-size:.8em;line-height:.9}
+.sticker{position:absolute;left:18px;top:150px;width:120px;height:120px;z-index:3;animation:spin 18s linear infinite}
+.sticker text{font:700 11px var(--disp);letter-spacing:1px;fill:var(--ink)}
+.cover-meta{position:relative;z-index:2;display:flex;gap:10px;margin-top:18px;flex-wrap:wrap}
+.cover-meta span{background:var(--cream);color:var(--ink);border-radius:30px;padding:9px 14px;font:600 14px/1 var(--sans)}
+.tap-hint{display:flex;align-items:center;gap:8px;margin-top:22px;font:500 13px/1 var(--sans);opacity:.9}
+.tap-hint i{width:26px;height:26px;border-radius:50%;border:1.5px solid currentColor;position:relative}
+.tap-hint i::after{content:"";position:absolute;inset:5px;border-radius:50%;background:currentColor;animation:pulse 1.6s ease-in-out infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes pulse{50%{transform:scale(.5);opacity:.4}}
+
+/* 1 words */
+.s-words{background:var(--cream)}
+.quote{font:900 140px/.7 var(--disp);color:var(--coral);height:70px}
+.words p{font:500 21px/1.45 var(--sans);letter-spacing:-.01em}
+.words p+p{margin-top:14px;font-weight:400;font-size:18px;color:#4a4350}
+.sig{margin-top:22px;display:flex;align-items:center;gap:12px;font:700 15px/1.2 var(--disp);text-transform:uppercase}
+.sig::before{content:"";width:34px;height:3px;background:var(--coral)}
+.be{margin-top:22px;background:var(--butter);border-radius:18px;padding:16px 18px;font:500 15.5px/1.45 var(--sans)}
+.be small{display:block;font:700 10px/1 var(--disp);letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px;opacity:.7}
+
+/* 2 date */
+.s-date{background:var(--ink);color:var(--cream)}
+.mega{font:900 clamp(130px,46cqw,200px)/.8 var(--disp);letter-spacing:-.05em;color:var(--butter);margin-top:16px}
+.month{font:900 clamp(34px,11.5cqw,52px)/.95 var(--disp);text-transform:uppercase;letter-spacing:-.02em}
+.month small{display:block;font:300 18px/1.3 var(--disp);letter-spacing:0;text-transform:none;opacity:.8;margin-top:6px}
+.cd{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:24px}
+.cd div{background:rgba(246,239,230,.08);border:1px solid rgba(246,239,230,.14);border-radius:16px;padding:12px 4px;text-align:center}
+.cd b{display:block;font:700 26px/1 var(--disp);font-variant-numeric:tabular-nums}
+.cd small{font:500 11px/1 var(--sans);opacity:.7}
+
+/* 3 program */
+.s-prog{background:var(--butter)}
+.plist{list-style:none;margin-top:18px;display:grid;gap:8px}
+.plist li{display:grid;grid-template-columns:84px 1fr;gap:12px;align-items:center;background:var(--cream);border-radius:18px;padding:13px 14px}
+.plist li:nth-child(odd){transform:rotate(-.6deg)}.plist li:nth-child(even){transform:rotate(.6deg)}
+.plist time{font:900 21px/1 var(--disp);background:var(--ink);color:var(--butter);border-radius:12px;padding:9px 0;text-align:center}
+.plist h3{font:700 15px/1.2 var(--disp);text-transform:uppercase;letter-spacing:-.01em}
+.plist p{font-size:13.5px;line-height:1.35;color:#544c55;margin-top:3px}
+
+/* 4 place */
+.s-place{background:var(--olive);color:var(--cream)}
+.mapart{position:relative;margin-top:18px;height:210px;border-radius:24px;overflow:hidden;background:#66744a}
+.mapart svg{position:absolute;inset:0;width:100%;height:100%}
+.pin{position:absolute;left:50%;top:44%;width:56px;height:56px;margin:-56px 0 0 -28px;color:var(--coral);animation:drop 1s cubic-bezier(.3,1.6,.5,1) both .5s}
+.pin svg{width:100%;height:100%;filter:drop-shadow(0 8px 8px rgba(0,0,0,.35))}
+@keyframes drop{from{transform:translateY(-80px);opacity:0}}
+.venue{font:900 26px/1.05 var(--disp);text-transform:uppercase;margin-top:18px;letter-spacing:-.01em}
+.addr{margin-top:8px;font-size:16px;opacity:.9}
+.how{margin-top:10px;font-size:14px;opacity:.75}
+
+/* 5 dress */
+.s-dress{background:var(--blush)}
+.stack{display:flex;margin-top:22px;padding-left:16px}
+.stack i{width:80px;height:80px;border-radius:50%;margin-left:-22px;border:4px solid var(--blush);box-shadow:0 10px 20px -10px rgba(0,0,0,.35)}
+.sw-names{display:flex;flex-wrap:wrap;gap:6px;margin-top:16px}
+.sw-names span{display:inline-flex;align-items:center;gap:7px;background:var(--cream);border-radius:30px;padding:7px 12px 7px 7px;font:500 13px/1 var(--sans)}
+.sw-names span i{width:16px;height:16px;border-radius:50%;box-shadow:inset 0 0 0 1px rgba(0,0,0,.1)}
+
+/* 6 gifts */
+.s-gift{background:var(--plum);color:var(--cream)}
+.giftart{width:150px;height:150px;margin:6px 0 -6px auto;animation:bob 3s ease-in-out infinite}
+@keyframes bob{50%{transform:translateY(-8px) rotate(-3deg)}}
+.gcard{background:rgba(246,239,230,.1);border-radius:20px;padding:16px 18px;margin-top:12px}
+.gcard b{display:block;font:700 13px/1 var(--disp);text-transform:uppercase;color:var(--butter);margin-bottom:6px;letter-spacing:.04em}
+
+/* 7 RSVP */
+.s-rsvp{background:var(--cream)}
+#rsvp{display:grid;gap:16px;margin-top:16px}
+.f-label{display:block;font:700 10.5px/1.2 var(--disp);letter-spacing:.06em;text-transform:uppercase;margin-bottom:7px}
+.f-input{width:100%;border:2px solid var(--ink);border-radius:14px;background:#fff;padding:13px 14px;font:400 16px/1.3 var(--sans);color:var(--ink);outline:0;resize:none}
+.f-input:focus{box-shadow:4px 4px 0 var(--coral)}
+.f-seg{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.f-seg label{position:relative;cursor:pointer}
+.f-seg input,.chip input{position:absolute;opacity:0;pointer-events:none}
+.f-seg span{display:block;text-align:center;padding:14px 4px;border-radius:14px;border:2px solid var(--ink);font:600 14px/1.15 var(--sans);background:#fff;transition:.2s}
+.f-seg input:checked+span{background:var(--coral);color:#fff;border-color:var(--coral);box-shadow:4px 4px 0 var(--ink)}
+.f-step{display:inline-flex;align-items:center;border:2px solid var(--ink);border-radius:14px;overflow:hidden;background:#fff}
+.f-step-btn{width:48px;height:46px;border:0;background:#fff;font:700 22px/1 var(--disp);cursor:pointer;color:var(--ink)}
+.f-step-val{min-width:44px;text-align:center;font:900 22px/46px var(--disp);background:var(--butter)}
+.f-chips{display:flex;flex-wrap:wrap;gap:7px}
+.chip span{display:inline-block;padding:10px 13px;border-radius:30px;border:2px solid var(--ink);background:#fff;font:600 13px/1 var(--sans);cursor:pointer}
+.chip input:checked+span{background:var(--ink);color:var(--butter)}
+.f-yes{display:grid;gap:16px}.f-yes.off{display:none}
+.f-submit{padding:18px;border:0;border-radius:16px;background:var(--coral);color:#fff;font:700 14px/1 var(--disp);text-transform:uppercase;letter-spacing:.02em;cursor:pointer;box-shadow:4px 4px 0 var(--ink)}
+.f-submit:active{transform:translate(2px,2px);box-shadow:2px 2px 0 var(--ink)}
+.f-submit:disabled{opacity:.6}
+.f-error{color:#b3261e;font-weight:600;font-size:14px}
+.f-note{text-align:center;font-size:13px;color:#6b6370}
+.thanks{display:none;margin-top:24px;background:var(--coral);color:var(--cream);border-radius:24px;padding:28px 22px;text-align:center;box-shadow:6px 6px 0 var(--ink)}
+.thanks.on{display:block;animation:pop .6s cubic-bezier(.2,.8,.2,1)}
+.thanks .big{font:900 40px/1 var(--disp);text-transform:uppercase}
+.thanks p{margin-top:12px;font-size:16px}
+.thanks button{margin-top:16px;background:none;border:0;color:inherit;font:600 13px/1 var(--sans);text-decoration:underline;cursor:pointer}
+.confetti{position:absolute;inset:0;pointer-events:none;z-index:30;overflow:hidden}
+.confetti i{position:absolute;top:-10px;width:9px;height:14px;border-radius:2px;animation:conf 2.2s cubic-bezier(.2,.6,.4,1) forwards}
+@keyframes conf{to{transform:translate(var(--x),110vh) rotate(var(--r))}}
+
+/* 8 contacts */
+.s-contacts{background:var(--ink);color:var(--cream)}
+.pcard{background:rgba(246,239,230,.07);border:1px solid rgba(246,239,230,.12);border-radius:22px;padding:16px;margin-top:12px}
+.pcard h3{font:700 18px/1.1 var(--disp);text-transform:uppercase}
+.pcard .role{font-size:13px;opacity:.65;margin-top:3px}
+.pcard .tel{display:inline-block;margin-top:6px;font-weight:600;text-decoration:none;color:var(--butter)}
+.msg{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:12px}
+.msg a{display:flex;flex-direction:column;align-items:center;gap:6px;padding:11px 2px 9px;border-radius:14px;text-decoration:none;font:600 11px/1 var(--sans);color:#fff}
+.msg a svg{width:22px;height:22px}
+.msg .telegram{background:#2aa3de}.msg .viber{background:#7360f2}.msg .whatsapp{background:#25c063}.msg .phone{background:var(--coral)}
+.finale{font:900 clamp(32px,11cqw,48px)/.95 var(--disp);text-transform:uppercase;margin-top:26px;color:var(--butter)}
+
+/* nav zones + menu */
+.zone{position:absolute;top:80px;bottom:0;z-index:5}
+.menu{position:absolute;inset:0;z-index:40;background:rgba(23,19,26,.92);backdrop-filter:blur(8px);color:var(--cream);padding:90px 22px 30px;display:none;flex-direction:column;gap:8px}
+.menu.on{display:flex;animation:pop .35s ease}
+.menu button{text-align:left;background:rgba(246,239,230,.07);border:0;color:inherit;border-radius:16px;padding:15px 16px;font:700 15px/1 var(--disp);text-transform:uppercase;cursor:pointer;display:flex;gap:12px;align-items:center}
+.menu button span{color:var(--butter);font-weight:300;width:24px}
+.menu .close{position:absolute;top:24px;right:18px;width:40px;height:40px;justify-content:center;padding:0;border-radius:50%}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.ani{opacity:1;transform:none}}
+</style>
+</head>
+<body>
+<div class="stage">
+  <div class="bgblur"></div>
+  <div class="side-hint side-l"><b>Свадебные<br>сториз</b>Листайте, как в Instagram</div>
+  <div class="phone" id="phone"></div>
+  <div class="side-hint"><b>Управление</b>Клик справа — дальше, слева — назад. Или клавиши <kbd>←</kbd> <kbd>→</kbd>. Удерживайте, чтобы остановить.</div>
+</div>
+<script>
+/* =====================================================================
+   CONFIG — ВСЕ ДАННЫЕ ПАРЫ. Конструктор подставляет сюда свои значения.
+   Схема описана в README.md. Пустая строка/пустой массив = слайд скрыт.
+   ===================================================================== */
+const CONFIG = {
+  template: "kadry",
+  siteId: "",
+  couple: { partner1: "Даша", partner2: "Никита", monogram: "Д+Н" },
+  date: { start: "2027-09-18T16:00:00+03:00", end: "2027-09-19T00:30:00+03:00", timezone: "Europe/Minsk" },
+  location: {
+    city: "Гомель",
+    venueType: "Лофт",
+    venue: "Лофт «Фабрика 1927»",
+    address: "ул. Речная, 14, Гомель",
+    coords: [52.4345, 30.9754],
+    mapUrl: "",
+    howToGet: "Вход со стороны набережной, парковка у ворот. Регистрация в 13:30 — только для семьи."
+  },
+  photo: { hero: "", caption: "ваше фото" },
+  texts: {
+    sticker: "МЫ ЖЕНИМСЯ • МЫ ЖЕНИМСЯ • ",
+    intro: [
+      "Мы решили: хватит просто встречаться — пора устроить самую большую вечеринку в нашей жизни.",
+      "Будет вкусный ужин, лучший диджей Гомеля и танцпол до утра. Без скучных конкурсов, обещаем. Не хватает только вас."
+    ],
+    signature: "Даша и Никита",
+    belarusian: "Чакаем вас! Будзе весела.",
+    closing: "До встречи на танцполе!"
+  },
+  program: [
+    { time: "13:30", title: "Регистрация", text: "Дворец бракосочетания — для самых близких" },
+    { time: "16:00", title: "Сбор гостей", text: "Welcome-бар и фотозона в лофте" },
+    { time: "17:00", title: "Ужин", text: "Длинный стол, тосты, первый танец" },
+    { time: "20:00", title: "Вечеринка", text: "DJ-сет и танцпол до упаду" },
+    { time: "23:30", title: "Торт", text: "И сюрприз для всех гостей" }
+  ],
+  gifts: {
+    text: "Лучший подарок — конверт: мы копим на путешествие в Японию. Обещаем прислать открытку из Киото!",
+    flowers: "Цветы не нужны — они завянут, пока мы танцуем. Лучше приходите в хорошем настроении."
+  },
+  dressCode: {
+    title: "Яркий коктейль",
+    text: "Смело! Коктейльные платья, яркие рубашки, костюмы любого цвета. Главное — удобная обувь для танцев.",
+    colors: [
+      { name: "Коралл", hex: "#e8553d" }, { name: "Масло", hex: "#f2d27a" }, { name: "Пудра", hex: "#f2c6bb" },
+      { name: "Олива", hex: "#55623a" }, { name: "Слива", hex: "#3a1f3d" }
+    ]
+  },
+  contacts: [
+    { name: "Даша", role: "Невеста", phone: "+375 29 000-00-21", telegram: "" },
+    { name: "Никита", role: "Жених", phone: "+375 25 000-00-22", telegram: "" }
+  ],
+  rsvp: {
+    endpoint: "",            // URL вашего бэкенда (POST JSON). Пусто = демо-режим
+    deadline: "2027-08-20",
+    maxGuests: 4,
+    drinks: ["Вино", "Коктейли", "Крепкое", "Пиво", "Без алкоголя"]
+  },
+  stories: { autoplaySec: 9 },  // 0 = без автопрокрутки
+  theme: { coral: "#e8553d", ink: "#17131a", cream: "#f6efe6", butter: "#f2d27a", blush: "#f2c6bb", olive: "#55623a", plum: "#3a1f3d" }
+};
+/* ==========================================================================
+   WEDDING CORE v1 — общий движок для всех шаблонов (вставляется при сборке).
+   Ничего здесь не меняйте под конкретную пару: все данные — в CONFIG выше.
+   ========================================================================== */
+const W = (() => {
+  const C = CONFIG;
+  const TZ = (C.date && C.date.timezone) || 'Europe/Minsk';
+  const MONTHS_GEN = ['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'];
+  const MONTHS_NOM = ['январь','февраль','март','апрель','май','июнь','июль','август','сентябрь','октябрь','ноябрь','декабрь'];
+  const MONTHS_BE = ['студзеня','лютага','сакавіка','красавіка','мая','чэрвеня','ліпеня','жніўня','верасня','кастрычніка','лістапада','снежня'];
+  const WEEKDAYS = ['воскресенье','понедельник','вторник','среда','четверг','пятница','суббота'];
+
+  const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+  const $ = (sel, root = document) => root.querySelector(sel);
+  const $$ = (sel, root = document) => [...root.querySelectorAll(sel)];
+  const plural = (n, f) => { n = Math.abs(n) % 100; const n1 = n % 10; if (n > 10 && n < 20) return f[2]; if (n1 > 1 && n1 < 5) return f[1]; if (n1 === 1) return f[0]; return f[2]; };
+
+  /* Части даты в часовом поясе свадьбы (Минск), независимо от пояса гостя */
+  function parts(iso) {
+    const d = new Date(iso);
+    const p = {};
+    new Intl.DateTimeFormat('en-GB', { timeZone: TZ, year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', weekday: 'short', hour12: false })
+      .formatToParts(d).forEach(x => p[x.type] = x.value);
+    const m = +p.month - 1;
+    const wd = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].indexOf(p.weekday);
+    return {
+      date: d, day: +p.day, dd: p.day, month: m, mm: p.month, year: +p.year,
+      time: `${p.hour === '24' ? '00' : p.hour}:${p.minute}`,
+      monthGen: MONTHS_GEN[m], monthNom: MONTHS_NOM[m], monthBe: MONTHS_BE[m], weekday: WEEKDAYS[wd],
+      dotted: `${p.day}.${p.month}.${p.year}`,
+      long: `${+p.day} ${MONTHS_GEN[m]} ${p.year}`
+    };
+  }
+  const start = () => parts(C.date.start);
+
+  /* Обратный отсчёт: cb({d,h,m,s,done}) раз в секунду */
+  function countdown(cb) {
+    const target = new Date(C.date.start).getTime();
+    const tick = () => {
+      let diff = Math.max(0, target - Date.now());
+      const done = diff === 0;
+      const d = Math.floor(diff / 864e5); diff -= d * 864e5;
+      const h = Math.floor(diff / 36e5); diff -= h * 36e5;
+      const m = Math.floor(diff / 6e4); diff -= m * 6e4;
+      cb({ d, h, m, s: Math.floor(diff / 1000), done });
+    };
+    tick(); return setInterval(tick, 1000);
+  }
+
+  /* Ссылка на Яндекс.Карты: берём mapUrl, иначе строим поиск по адресу */
+  function mapUrl() {
+    const L = C.location || {};
+    if (L.mapUrl) return L.mapUrl;
+    if (L.coords) return `https://yandex.by/maps/?pt=${L.coords[1]},${L.coords[0]}&z=15&l=map`;
+    return `https://yandex.by/maps/?text=${encodeURIComponent([L.city, L.address].filter(Boolean).join(', '))}`;
+  }
+
+  /* Файл .ics для «Добавить в календарь» */
+  function icsDate(iso) { return new Date(iso).toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, ''); }
+  function downloadICS() {
+    const L = C.location || {};
+    const title = `Свадьба: ${C.couple.partner1} и ${C.couple.partner2}`;
+    const endIso = C.date.end || new Date(new Date(C.date.start).getTime() + 8 * 36e5).toISOString();
+    const lines = [
+      'BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//wedding-site//RU', 'CALSCALE:GREGORIAN', 'METHOD:PUBLISH',
+      'BEGIN:VEVENT',
+      `UID:${icsDate(C.date.start)}-${(C.couple.partner1 + C.couple.partner2).length}@wedding-site`,
+      `DTSTAMP:${icsDate(new Date().toISOString())}`,
+      `DTSTART:${icsDate(C.date.start)}`, `DTEND:${icsDate(endIso)}`,
+      `SUMMARY:${title}`,
+      `LOCATION:${[L.venue, L.address, (L.address || '').includes(L.city || '#') ? '' : L.city].filter(Boolean).join(', ').replace(/,/g, '\\,')}`,
+      `DESCRIPTION:${('Ждём вас! Карта: ' + mapUrl()).replace(/,/g, '\\,')}`,
+      'BEGIN:VALARM', 'TRIGGER:-P1D', 'ACTION:DISPLAY', 'DESCRIPTION:Завтра свадьба!', 'END:VALARM',
+      'END:VEVENT', 'END:VCALENDAR'
+    ];
+    const blob = new Blob([lines.join('\r\n')], { type: 'text/calendar;charset=utf-8' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob); a.download = 'wedding.ics';
+    document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 500);
+  }
+
+  /* Иконки (inline SVG, currentColor) */
+  const icons = {
+    telegram: '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M21.9 4.3 18.8 19c-.2 1-.9 1.3-1.7.8l-4.7-3.5-2.3 2.2c-.3.3-.5.5-1 .5l.3-4.8 8.8-7.9c.4-.3-.1-.5-.6-.2L6.7 12.9 2 11.4c-1-.3-1-1 .2-1.5L20.6 2.8c.8-.3 1.6.2 1.3 1.5Z"/></svg>',
+    viber: '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M11.4 1.5c-2.2 0-6.9.4-8.6 2.1C1.4 5 1 7.4.9 10.2c-.1 2.8-.2 8 4.8 9.4v2.2s0 .9.6 1.1c.7.2 1.1-.5 1.8-1.2l1.3-1.5c3.5.3 6.2-.4 6.5-.5.7-.2 4.7-.7 5.4-6 .7-5.5-.3-9-2.1-10.5C18.7 2.8 16.4 1.5 11.4 1.5Zm.2 1.6c4.4 0 6.3 1.1 6.8 1.5 1.5 1.3 2.3 4.4 1.7 9-.6 4.4-3.8 4.7-4.4 4.9-.3.1-2.6.7-5.6.5l-2.8 3.1v-3c-4.2-1.2-4.1-5.4-4-7.8.1-2.4.5-4.3 1.8-5.6C6.7 3.5 9.8 3.1 11.6 3.1Zm.4 2.4a.3.3 0 0 0 0 .6c1.5 0 2.7.5 3.7 1.4 1 1 1.5 2.3 1.5 4a.3.3 0 0 0 .6 0c0-1.8-.6-3.3-1.7-4.4-1.1-1.1-2.5-1.6-4.1-1.6Zm-3.6.8c-.3 0-.6 0-.8.3l-.6.6c-.4.4-.6 1-.4 1.5.5 1.4 1.3 2.8 2.3 4 1.3 1.6 3 2.8 5 3.5.6.2 1.2 0 1.6-.4l.5-.6c.3-.4.3-.9-.1-1.2l-1.5-1.2c-.4-.3-.9-.2-1.2.1l-.4.5c-.2.2-.5.3-.8.2-1.6-.6-2.8-1.8-3.4-3.4-.1-.3 0-.6.2-.8l.5-.4c.3-.3.4-.8.1-1.2L9 6.6c-.2-.2-.4-.3-.6-.3Zm4 .7a.3.3 0 0 0 0 .6c1.9.1 3 1.2 3.1 3.2a.3.3 0 0 0 .6 0c-.1-2.3-1.5-3.7-3.7-3.8Zm.3 1.4a.3.3 0 0 0 0 .6c.8.1 1.1.4 1.2 1.2a.3.3 0 0 0 .6 0c-.1-1.1-.7-1.7-1.8-1.8Z"/></svg>',
+    whatsapp: '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2a9.9 9.9 0 0 0-8.5 15l-1.4 5 5.2-1.4A10 10 0 1 0 12 2Zm0 18.2c-1.5 0-3-.4-4.3-1.2l-.3-.2-3.1.8.8-3-.2-.3A8.2 8.2 0 1 1 12 20.2Zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1l-.8 1c-.1.2-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.2-.4.7-1.4.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5c-.2 0-.5.1-.7.3-.2.3-.9.9-.9 2.2s.9 2.5 1 2.7c.1.2 1.8 2.8 4.4 3.9 1.6.7 2.3.8 3.1.6.5-.1 1.5-.6 1.7-1.2.2-.6.2-1.1.2-1.2-.1-.1-.3-.2-.5-.3Z"/></svg>',
+    phone: '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M6.6 10.8a15.2 15.2 0 0 0 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1A17 17 0 0 1 3 4c0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.3 0 .7-.2 1l-2.3 2.2Z"/></svg>',
+    map: '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2a7 7 0 0 0-7 7c0 5.2 7 13 7 13s7-7.8 7-13a7 7 0 0 0-7-7Zm0 9.5a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5Z"/></svg>',
+    calendar: '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M7 2h2v2h6V2h2v2h3a1 1 0 0 1 1 1v15a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1h3V2Zm12 8H5v9h14v-9ZM5 8h14V6H5v2Zm2 4h4v4H7v-4Z"/></svg>'
+  };
+
+  /* Ссылки мессенджеров для контакта {phone, telegram} */
+  function contactLinks(c) {
+    const digits = String(c.phone || '').replace(/\D/g, '');
+    const out = [];
+    if (c.showTelegram !== false && (c.telegram || digits)) out.push({ type: 'telegram', label: 'Telegram', href: c.telegram ? `https://t.me/${String(c.telegram).replace(/^@/, '')}` : `https://t.me/+${digits}` });
+    if (digits && c.showViber !== false) out.push({ type: 'viber', label: 'Viber', href: `viber://chat?number=%2B${digits}` });
+    if (digits && c.showWhatsapp !== false) out.push({ type: 'whatsapp', label: 'WhatsApp', href: `https://wa.me/${digits}` });
+    if (digits) out.push({ type: 'phone', label: 'Позвонить', href: `tel:+${digits}` });
+    return out;
+  }
+
+  /* Цвета темы из CONFIG.theme → CSS-переменные --c-<ключ> */
+  function applyTheme() {
+    const t = C.theme || {};
+    Object.keys(t).forEach(k => document.documentElement.style.setProperty(`--${k}`, t[k]));
+  }
+
+  /* Появление блоков при прокрутке: класс .rv → .rv.in */
+  function reveal(root = document) {
+    const els = $$('.rv', root);
+    if (!('IntersectionObserver' in window)) { els.forEach(e => e.classList.add('in')); return; }
+    const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } }), { threshold: 0.12, rootMargin: '0px 0px -5% 0px' });
+    els.forEach(e => io.observe(e));
+  }
+
+  /* Разметка формы RSVP (поля одинаковые во всех шаблонах, стиль — свой) */
+  function rsvpFormHTML() {
+    const R = C.rsvp || {};
+    const drinks = (R.drinks || []).map((d, i) => `<label class="chip"><input type="checkbox" name="drinks" value="${esc(d)}"><span>${esc(d)}</span></label>`).join('');
+    return `
+      <div class="f-row"><label class="f-label" for="rsvp-name">Имя и фамилия</label>
+        <input class="f-input" id="rsvp-name" name="name" type="text" autocomplete="name" placeholder="Как к вам обращаться" required></div>
+      <div class="f-row"><span class="f-label">Вы придёте?</span>
+        <div class="f-seg" role="radiogroup">
+          <label><input type="radio" name="attending" value="yes" required><span>${esc(R.yesLabel || 'С радостью приду')}</span></label>
+          <label><input type="radio" name="attending" value="no"><span>${esc(R.noLabel || 'Не смогу')}</span></label>
+        </div></div>
+      <div class="f-yes">
+        <div class="f-row"><span class="f-label">Сколько вас будет, включая вас</span>
+          <div class="f-step"><button type="button" class="f-step-btn" data-d="-1" aria-label="Меньше">−</button><output class="f-step-val">1</output><input type="hidden" name="guests" value="1"><button type="button" class="f-step-btn" data-d="1" aria-label="Больше">+</button></div></div>
+        ${drinks ? `<div class="f-row"><span class="f-label">Что будете пить</span><div class="f-chips">${drinks}</div></div>` : ''}
+        <div class="f-row"><label class="f-label" for="rsvp-food">Ограничения в еде, аллергии</label>
+          <input class="f-input" id="rsvp-food" name="food" type="text" placeholder="Например: не ем мясо, аллергия на орехи"></div>
+      </div>
+      <div class="f-row"><label class="f-label" for="rsvp-comment">Комментарий</label>
+        <textarea class="f-input" id="rsvp-comment" name="comment" rows="3" placeholder="Нужен трансфер, приду с ребёнком, пожелание песни…"></textarea></div>
+      <input class="f-hp" type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0"><p class="f-error" role="alert" hidden></p>
+      <button class="f-submit" type="submit">${esc(R.submitLabel || 'Отправить ответ')}</button>
+      ${R.deadline ? `<p class="f-note">Пожалуйста, ответьте до ${esc(parts(R.deadline + 'T12:00:00+03:00').long)}</p>` : ''}`;
+  }
+
+  /* ======================================================================
+     >>> HOOK ОТПРАВКИ RSVP <<<
+     Конструктор/бэкенд: укажите CONFIG.rsvp.endpoint (ваш сервер, который
+     пересылает ответ в Telegram-бот пары и/или на e-mail). Токены ботов
+     НИКОГДА не кладите в этот файл — только на сервере.
+     Тело запроса (JSON, POST):
+       { site, couple, name, attending: "yes"|"no", guests, drinks[], food,
+         comment, submittedAt }
+     Пустой endpoint = демо-режим: ответ сохраняется в localStorage.
+     ====================================================================== */
+  async function submitRSVP(payload) {
+    const R = C.rsvp || {};
+    const body = { site: C.siteId || '', couple: `${C.couple.partner1} & ${C.couple.partner2}`, ...payload, submittedAt: new Date().toISOString() };
+    if (R.endpoint && C.siteId) {
+      const res = await fetch(R.endpoint, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      return body;
+    }
+    const key = 'rsvp_demo_' + (C.siteId || 'site');
+    const all = JSON.parse(localStorage.getItem(key) || '[]'); all.push(body);
+    localStorage.setItem(key, JSON.stringify(all));
+    await new Promise(r => setTimeout(r, 600));
+    return body;
+  }
+
+  /* Подключение формы: валидация, степпер гостей, «нет» скрывает лишние поля */
+  function bindRSVP(form, onSuccess) {
+    form.innerHTML = rsvpFormHTML();
+    form.noValidate = true;
+    const yes = $('.f-yes', form), err = $('.f-error', form), btn = $('.f-submit', form);
+    const max = (C.rsvp && C.rsvp.maxGuests) || 5;
+    form.addEventListener('change', e => { if (e.target.name === 'attending') yes.classList.toggle('off', e.target.value === 'no'); });
+    $$('.f-step-btn', form).forEach(b => b.addEventListener('click', () => {
+      const inp = $('input[name=guests]', form), out = $('.f-step-val', form);
+      const v = Math.min(max, Math.max(1, +inp.value + +b.dataset.d)); inp.value = v; out.textContent = v;
+    }));
+    form.addEventListener('submit', async e => {
+      e.preventDefault();
+      const fd = new FormData(form);
+      const data = { name: (fd.get('name') || '').trim(), attending: fd.get('attending'), guests: +fd.get('guests') || 1, drinks: fd.getAll('drinks'), food: (fd.get('food') || '').trim(), allergies: (fd.get('allergies') || '').trim(), comment: (fd.get('comment') || '').trim(), website: (fd.get('website') || '').trim() };
+      if (data.name.length < 2) return showErr('Пожалуйста, напишите имя.', 'name');
+      if (!data.attending) return showErr('Отметьте, сможете ли вы прийти.');
+      if (data.attending === 'no') { data.guests = 0; data.drinks = []; data.food = ''; }
+      err.hidden = true; btn.disabled = true; btn.dataset.label = btn.textContent; btn.textContent = 'Отправляем…';
+      try {
+        await submitRSVP(data);
+        onSuccess(data);
+        var note = document.getElementById('thanksText');
+        if (note && note.textContent.indexOf('ответ получен') === -1) note.insertAdjacentText('afterbegin', 'Спасибо, ответ получен. ');
+      } catch (x) {
+        showErr('Не удалось отправить. Нажмите «Отправить ещё раз» — введённое на месте.');
+        btn.dataset.label = 'Отправить ещё раз';
+      } finally { btn.disabled = false; btn.textContent = btn.dataset.label; }
+    });
+    function showErr(msg, field) { err.textContent = msg; err.hidden = false; if (field) $(`[name=${field}]`, form).focus(); }
+  }
+
+  /* Текст «спасибо» после отправки */
+  function thanksText(d) {
+    const first = esc(d.name.split(' ')[0]);
+    return d.attending === 'yes'
+      ? `${first}, спасибо! Ваш ответ у нас. Ждём ${d.guests > 1 ? `вас вдвоём${d.guests > 2 ? ' и не только' : ''}` : 'вас'} ${esc(start().long)}.`
+      : `${first}, спасибо, что предупредили. Нам будет вас не хватать.`;
+  }
+
+  return { C, $, $$, esc, plural, parts, start, countdown, mapUrl, downloadICS, icons, contactLinks, applyTheme, reveal, bindRSVP, thanksText, MONTHS_BE };
+})();
+
+
+window.W = W;
+
+/* ======================= RENDER: шаблон «Кадры» (сториз) ======================= */
+window.aivPaint = () => {
+  if (window.__aivTimer) clearInterval(window.__aivTimer);
+  if (window.__aivRaf) cancelAnimationFrame(window.__aivRaf);
+  var keepY = window.scrollY;
+  var keepSlide = window.STORIES ? window.STORIES.current : -1;
+  const { C, esc, start, countdown, mapUrl, downloadICS, icons, contactLinks, applyTheme, bindRSVP, thanksText, $, $$, plural } = W;
+  const on = (key) => !C.blocks || C.blocks[key] !== false;
+  applyTheme();
+  const d = start(), L = C.location, T = C.texts;
+  document.title = `${C.couple.partner1} и ${C.couple.partner2} · ${d.dotted}`;
+  const shortMonth = d.monthNom.slice(0, 3).toUpperCase();
+  let k = 0; const a = () => `style="--i:${k++}"`;
+
+  const slides = [];
+  const add = (cls, light, title, inner) => { k = 0; slides.push({ cls, light, title, html: inner() }); };
+
+  add('s-cover', false, 'Обложка', () => `
+    ${on('photo') ? `<div class="cover-photo ani" ${a()}>${C.photo && C.photo.hero ? `<img src="${esc(C.photo.hero)}" alt="">` : `<div class="ph"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="6" width="18" height="14" rx="3"/><circle cx="12" cy="13" r="4"/><path d="M8 6l1.5-2h5L16 6"/></svg><small>${esc((C.photo && C.photo.caption) || 'фото пары')}</small></div>`}<div class="cap">${d.dotted}</div></div>` : ''}
+    <svg class="sticker" viewBox="0 0 120 120" aria-hidden="true"><circle cx="60" cy="60" r="58" fill="#f2d27a"/><path id="circ" d="M60,60 m-44,0 a44,44 0 1,1 88,0 a44,44 0 1,1 -88,0" fill="none"/><text textLength="270" lengthAdjust="spacingAndGlyphs"><textPath href="#circ" textLength="270" lengthAdjust="spacingAndGlyphs">${esc(T.sticker || '')}</textPath></text><path d="M60 50c-4-7-15-5-15 3 0 7 15 15 15 15s15-8 15-15c0-8-11-10-15-3z" fill="#e8553d"/></svg>
+    ${on('names') ? `<h1 class="big-names ani" ${a()}>${esc(C.couple.partner1)}<span class="plus">+</span>${esc(C.couple.partner2)}</h1>` : ''}
+    <div class="cover-meta ani" ${a()}>${on('date') ? `<span>${d.day} ${esc(d.monthGen)}</span>` : ''}${on('place') ? `<span>${esc(L.city)}</span>` : ''}${on('date') ? `<span>${d.time}</span>` : ''}</div>
+    <div class="tap-hint ani" ${a()}><i></i>Нажмите справа, чтобы листать</div>`);
+
+  if (on('words') && T.intro && T.intro.length) add('s-words', true, 'Слово пары', () => `
+    <span class="tag ani" ${a()}>Привет!</span><div class="quote ani" ${a()}>“</div>
+    <div class="words">${T.intro.map(p => `<p class="ani" ${a()}>${esc(p)}</p>`).join('')}</div>
+    <div class="sig ani" ${a()}>${esc(T.signature || '')}</div>
+    ${T.belarusian ? `<div class="be ani" ${a()}><small>Па-беларуску</small>${esc(T.belarusian)}</div>` : ''}`);
+
+  if (on('date') || on('timer')) add('s-date', false, 'Дата', () => `
+    ${on('date') ? `<span class="tag ani" ${a()}>Сохраните дату</span>
+    <div class="mega ani" ${a()}>${d.dd}</div>
+    <div class="month ani" ${a()}>${esc(d.monthGen)} ${d.year}<small>${esc(d.weekday)}, сбор в ${d.time}</small></div>` : ''}
+    ${on('timer') ? `<div class="cd ani" ${a()}>${['d','h','m','s'].map(x => `<div><b data-k="${x}">0</b><small data-l="${x}"></small></div>`).join('')}</div>` : ''}
+    <div class="spacer"></div>
+    <button class="btn light ani" ${a()} id="ics">${icons.calendar}Добавить в календарь</button>`);
+
+  if (on('program') && C.program && C.program.length) add('s-prog', true, 'Программа', () => `
+    <span class="tag ani" ${a()}>Тайминг</span><h2 class="h ani" ${a()}>План<br>на день</h2>
+    <ul class="plist">${C.program.map(p => `<li class="ani" ${a()}><time>${esc(p.time)}</time><div><h3>${esc(p.title)}</h3>${p.text ? `<p>${esc(p.text)}</p>` : ''}</div></li>`).join('')}</ul>`);
+
+  if (on('place')) add('s-place', false, 'Место', () => `
+    <span class="tag ani" ${a()}>${esc(L.venueType || 'Место')}</span>
+    ${on('placePhoto') ? `<div class="mapart ani" ${a()}>${L.photo ? `<img class="aiv-place" alt="" src="${esc(L.photo)}" style="width:100%;height:100%;object-fit:cover">` : `<svg viewBox="0 0 360 210" preserveAspectRatio="xMidYMid slice"><g stroke="#7d8b5f" stroke-width="10" fill="none" stroke-linecap="round"><path d="M-10 60 C80 70 140 30 380 50"/><path d="M60 -10 C70 80 50 150 80 230"/><path d="M-10 160 C120 150 220 175 380 150"/><path d="M250 -10 C240 70 280 140 260 230"/></g><path d="M-10 196 C90 182 200 206 380 186 V220 H-10Z" fill="#8fb0e0" opacity=".6"/><g fill="#71804f"><rect x="96" y="70" width="60" height="44" rx="6"/><rect x="170" y="78" width="54" height="56" rx="6"/><rect x="286" y="70" width="60" height="64" rx="6"/><rect x="100" y="16" width="120" height="22" rx="6"/></g></svg><div class="pin">${icons.map}</div>`}</div>` : ''}
+    <div class="venue ani" ${a()}>${esc(L.venue)}</div><div class="addr ani" ${a()}>${esc(L.address)}</div>${L.howToGet ? `<div class="how ani" ${a()}>${esc(L.howToGet)}</div>` : ''}
+    <div class="spacer"></div>${on('map') ? `<a class="btn light ani" ${a()} href="${esc(mapUrl())}" target="_blank" rel="noopener">${icons.map}Открыть на карте</a>` : ''}`);
+
+  if (on('dress') && C.dressCode) add('s-dress', true, 'Дресс-код', () => `
+    <span class="tag ani" ${a()}>Дресс-код</span><h2 class="h ani" ${a()}>${esc(C.dressCode.title || 'Дресс-код')}</h2>
+    <p class="p ani" ${a()}>${esc(C.dressCode.text)}</p>
+    <div class="stack ani" ${a()}>${(C.dressCode.colors || []).map(c => `<i style="background:${esc(c.hex)}"></i>`).join('')}</div>`);
+
+  if ((on('gifts') && C.gifts && C.gifts.text) || (on('flowers') && C.gifts && C.gifts.flowers)) add('s-gift', false, 'Подарки', () => `
+    <span class="tag ani" ${a()}>Подарки</span>
+    <svg class="giftart ani" ${a()} viewBox="0 0 150 150"><rect x="25" y="62" width="100" height="74" rx="8" fill="#e8553d"/><rect x="18" y="46" width="114" height="24" rx="6" fill="#f2c6bb"/><rect x="68" y="46" width="14" height="90" fill="#f2d27a"/><path d="M75 46c-10-22-38-24-36-6 2 12 36 6 36 6zm0 0c10-22 38-24 36-6-2 12-36 6-36 6z" fill="none" stroke="#f2d27a" stroke-width="7" stroke-linejoin="round"/></svg>
+    <h2 class="h ani" ${a()}>О подарках</h2>
+    ${on('gifts') && C.gifts.text ? `<div class="gcard ani" ${a()}><b>Что подарить</b>${esc(C.gifts.text)}</div>` : ''}
+    ${on('flowers') && C.gifts.flowers ? `<div class="gcard ani" ${a()}><b>Про цветы</b>${esc(C.gifts.flowers)}</div>` : ''}`);
+
+  if (on('rsvp')) add('s-rsvp', true, 'Анкета', () => `
+    <span class="tag ani" ${a()}>Анкета гостя</span><h2 class="h ani" ${a()}>Вы<br>с нами?</h2>
+    <div class="ani" ${a()}><form id="rsvp"></form><div class="thanks" id="thanks" aria-live="polite"><div class="big">Ура!</div><p id="thanksText"></p><button type="button" id="again">Изменить ответ</button></div></div>`);
+
+  if (on('contacts') && C.contacts && C.contacts.length) add('s-contacts', false, 'Контакты', () => `
+    <span class="tag ani" ${a()}>Связь</span><h2 class="h ani" ${a()}>Пишите<br>в один тап</h2>
+    ${C.contacts.map(c => `<div class="pcard ani" ${a()}><h3>${esc(c.name)}</h3><div class="role">${esc(c.role || '')}</div><a class="tel" href="tel:+${String(c.phone).replace(/\D/g, '')}">${esc(c.phone)}</a><div class="msg">${contactLinks(c).map(l => `<a class="${l.type}" href="${esc(l.href)}" target="_blank" rel="noopener">${icons[l.type]}${l.label === 'Позвонить' ? 'Звонок' : l.label}</a>`).join('')}</div></div>`).join('')}
+    <div class="finale ani" ${a()}>${esc(T.closing || '')}</div>`);
+
+  const phone = $('#phone');
+  phone.innerHTML = `
+    <div class="top"><div class="bars">${slides.map(() => '<i></i>').join('')}</div>
+      <div class="who"><span class="ava">${esc(C.couple.monogram || '')}</span><span>${esc(C.couple.partner1)} и ${esc(C.couple.partner2)} <small>· ${d.dotted}</small></span>
+        <span class="ctrl"><button type="button" id="pauseBtn" aria-label="Пауза"><svg viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg></button><button type="button" id="menuBtn" aria-label="Все разделы"><svg viewBox="0 0 24 24" fill="currentColor"><rect x="4" y="6" width="16" height="2.2" rx="1"/><rect x="4" y="11" width="16" height="2.2" rx="1"/><rect x="4" y="16" width="16" height="2.2" rx="1"/></svg></button></span></div></div>
+    ${slides.map((s, i) => `<section class="slide ${s.cls}" data-i="${i}" aria-label="${esc(s.title)}">${s.html}</section>`).join('')}
+    <div class="zone" id="zl" style="left:0;width:33%"></div><div class="zone" id="zr" style="right:0;width:67%"></div>
+    <nav class="menu" id="menu"><button class="close" type="button" id="menuClose" aria-label="Закрыть">✕</button>${slides.map((s, i) => `<button type="button" data-go="${i}"><span>${String(i + 1).padStart(2, '0')}</span>${esc(s.title)}</button>`).join('')}</nav>`;
+
+  /* ---------- движок сториз ---------- */
+  const els = $$('.slide', phone), bars = $$('.bars i', phone), top = $('.top', phone);
+  const AUTO = ((C.stories && C.stories.autoplaySec) || 0) * 1000;
+  const rsvpIndex = slides.findIndex(s => s.cls === 's-rsvp');
+  let cur = 0, t0 = 0, paused = false, held = false, raf;
+  const interactive = i => ['s-rsvp', 's-contacts'].includes(slides[i].cls);
+
+  function go(i, pause) {
+    i = Math.max(0, Math.min(slides.length - 1, i));
+    els.forEach((el, j) => { el.classList.toggle('act', j === i); el.classList.toggle('prev', j < i); });
+    // перезапуск анимаций появления
+    const el = els[i]; el.scrollTop = 0; el.querySelectorAll('.ani').forEach(n => { n.style.animation = 'none'; n.offsetHeight; n.style.animation = ''; });
+    cur = i; t0 = performance.now();
+    if (pause !== undefined) paused = !!pause;
+    phone.classList.toggle('on-light', slides[i].light);
+    document.querySelector('meta[name=theme-color]').content = getComputedStyle(el).backgroundColor;
+    bars.forEach((b, j) => b.style.setProperty('--p', j < i ? 1 : 0));
+    // зоны тапа не перекрывают интерактивные слайды
+    $('#zl').style.display = $('#zr').style.display = interactive(i) ? 'none' : '';
+  }
+  function loop(now) {
+    const stop = paused || held || !AUTO || interactive(cur) || $('#menu').classList.contains('on');
+    if (stop) t0 = now - (parseFloat(bars[cur].style.getPropertyValue('--p')) || 0) * AUTO;
+    const p = AUTO ? Math.min(1, (now - t0) / AUTO) : 1;
+    if (!interactive(cur)) bars[cur].style.setProperty('--p', AUTO ? p : 1);
+    else bars[cur].style.setProperty('--p', 1);
+    if (!stop && p >= 1 && cur < slides.length - 1) go(cur + 1);
+    raf = requestAnimationFrame(loop);
+  }
+  const next = () => go(cur + 1), prev = () => go(cur - 1);
+  // тапы: левая треть — назад, остальное — вперёд; удержание — пауза
+  let downAt = 0, sx = 0, sy = 0;
+  phone.addEventListener('pointerdown', e => { if (e.target.closest('.zone')) { downAt = Date.now(); held = true; } sx = e.clientX; sy = e.clientY; });
+  phone.addEventListener('pointerup', e => {
+    held = false;
+    const dx = e.clientX - sx, dy = e.clientY - sy;
+    if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy)) { dx < 0 ? next() : prev(); return; } // свайп (в т.ч. на интерактивных слайдах)
+    if (!e.target.closest('.zone') || Date.now() - downAt > 450) return;
+    e.target.id === 'zl' ? prev() : next();
+  });
+  phone.addEventListener('pointercancel', () => held = false);
+  if (window.__aivKey) document.removeEventListener('keydown', window.__aivKey);
+  window.__aivKey = (e) => { if (e.target.closest('input,textarea')) return; if (e.key === 'ArrowRight' || e.key === ' ') next(); if (e.key === 'ArrowLeft') prev(); };
+  document.addEventListener('keydown', window.__aivKey);
+  $('#pauseBtn').addEventListener('click', () => { paused = !paused; $('#pauseBtn').innerHTML = paused ? '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 5l12 7-12 7z"/></svg>' : '<svg viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg>'; });
+  $('#menuBtn').addEventListener('click', () => $('#menu').classList.add('on'));
+  $('#menuClose').addEventListener('click', () => $('#menu').classList.remove('on'));
+  $$('[data-go]').forEach(b => b.addEventListener('click', () => { $('#menu').classList.remove('on'); go(+b.dataset.go); }));
+
+  // данные
+  const forms = { d: ['день','дня','дней'], h: ['час','часа','часов'], m: ['минута','минуты','минут'], s: ['секунда','секунды','секунд'] };
+  window.__aivTimer = countdown(t => ['d','h','m','s'].forEach(x => { const b = $(`[data-k=${x}]`); if (b) { b.textContent = t[x]; $(`[data-l=${x}]`).textContent = plural(t[x], forms[x]); } }));
+  $('#ics').addEventListener('click', downloadICS);
+  const form = $('#rsvp'), thanks = $('#thanks');
+  bindRSVP(form, data => {
+    form.style.display = 'none'; $('#thanksText').innerHTML = thanksText(data); thanks.classList.add('on');
+    if (data.attending === 'yes') { const cf = document.createElement('div'); cf.className = 'confetti'; const cols = ['#e8553d', '#f2d27a', '#f2c6bb', '#55623a', '#3a1f3d'];
+      cf.innerHTML = Array.from({ length: 60 }, (_, i) => `<i style="left:${Math.random() * 100}%;background:${cols[i % 5]};--x:${(Math.random() - .5) * 160}px;--r:${Math.random() * 720}deg;animation-delay:${Math.random() * .4}s"></i>`).join('');
+      phone.appendChild(cf); setTimeout(() => cf.remove(), 3000); }
+  });
+  $('#again').addEventListener('click', () => { thanks.classList.remove('on'); form.style.display = ''; });
+
+  go(0); window.__aivRaf = raf = requestAnimationFrame(loop);
+  // API для конструктора/превью: STORIES.go(индекс, пауза)
+  window.STORIES = { count: slides.length, go, rsvpIndex, get current() { return cur; } };
+  window.scrollTo(0, keepY);
+  if (keepSlide >= 0 && window.STORIES && window.STORIES.go) window.STORIES.go(keepSlide, true);
+};
+window.aivPaint();
+</script>
+</body>
+</html>

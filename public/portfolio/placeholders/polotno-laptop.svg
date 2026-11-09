@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="800" viewBox="0 0 1280 800">
+<rect width="1280" height="800" fill="#e7e1d8"/>
+<rect x="80" y="40" width="1120" height="680" rx="12" fill="#f6f1e8" stroke="#6d1d24" stroke-opacity=".3"/>
+<text x="140" y="160" fill="#6d1d24" font-family="Georgia, serif" font-size="64">Полотно</text>
+<text x="140" y="230" fill="#6d1d24" fill-opacity=".7" font-family="sans-serif" font-size="24">Пример дизайна, не выполненный заказ</text>
+<text x="140" y="320" fill="#6d1d24" font-family="Georgia, serif" font-size="28">Орнамент</text><text x="140" y="368" fill="#6d1d24" font-family="Georgia, serif" font-size="28">Спокойный ритм</text><text x="140" y="416" fill="#6d1d24" font-family="Georgia, serif" font-size="28">Имена крупно</text>
+</svg>
